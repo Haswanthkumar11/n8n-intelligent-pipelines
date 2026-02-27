@@ -1,0 +1,173 @@
+{
+  "name": "AI Workflow Generator",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        176,
+        0
+      ],
+      "id": "18c00445-dea3-4746-ad42-0a27dfeec294",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "fec620b3-aa95-432f-828c-bd2bba4a18cf",
+              "name": "user_prompt",
+              "value": "When a Gmail with invoice arrives, extract amount and store in Google Sheets",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        416,
+        0
+      ],
+      "id": "576fcbcc-dd21-4a45-a02f-bfc6b88cd9f4",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "You are an n8n automation architect.\n\nConvert the user's request into a valid n8n workflow JSON.\n\nReturn ONLY JSON.\nDo not explain anything.\n\nAllowed node types:\n- n8n-nodes-base.gmailTrigger\n- n8n-nodes-base.googleSheets\n- n8n-nodes-base.httpRequest\n- n8n-nodes-base.function\n- n8n-nodes-base.webhook\n\nUse this exact structure:\n\n{\n  \"nodes\": [\n    {\n      \"name\": \"Node Name\",\n      \"type\": \"n8n-nodes-base.nodeType\",\n      \"typeVersion\": 1,\n      \"position\": [0, 0],\n      \"parameters\": {}\n    }\n  ],\n  \"connections\": {\n    \"Node Name\": {\n      \"main\": [\n        [\n          {\n            \"node\": \"Next Node Name\",\n            \"type\": \"main\",\n            \"index\": 0\n          }\n        ]\n      ]\n    }\n  }\n}",
+        "hasOutputParser": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        608,
+        0
+      ],
+      "id": "4d04e557-6531-41a5-a823-8c757f6d30a1",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        480,
+        208
+      ],
+      "id": "c9b22651-0d14-4eac-94a0-482f23a7ff61",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "Hd6rdE7SD4mU4dzt",
+          "name": "Google Gemini(PaLM) Api account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"nodes\": {\n      \"type\": \"array\",\n      \"items\": { \"type\": \"object\" }\n    },\n    \"connections\": {\n      \"type\": \"object\"\n    }\n  },\n  \"required\": [\"nodes\", \"connections\"]\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        752,
+        192
+      ],
+      "id": "ea286a95-4468-4b10-b636-0352ebd6925f",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "operation": "toJson",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        960,
+        16
+      ],
+      "id": "d3aa3259-9784-4747-b67c-2e8f0f730a48",
+      "name": "Convert to File"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Convert to File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "f58db075-59f7-4db2-84d9-7e3f4a0b5bb9",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "75c14bfe669d238fc9a89927f3605546efa09dd459b0f2b69590a9767798d776"
+  },
+  "id": "Vo4D1sfvzT56zMB7",
+  "tags": []
+}
